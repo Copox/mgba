@@ -242,8 +242,7 @@ static void mGLES2ContextSetLayerDimensions(struct VideoBackend* v, enum VideoLa
 				context->shaders[n].dirty = true;
 			}
 		}
-		glBindTexture(GL_TEXTURE_2D, context->initialShader.tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.width, frame.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		context->initialShader.dirty = true;
 		context->width = frame.width;
 		context->height = frame.height;
 	}
@@ -463,6 +462,14 @@ void mGLES2ContextDrawFrame(struct VideoBackend* v) {
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	context->finalShader.filter = v->filter;
+
+	if (context->initialShader.dirty) {
+		struct mRectangle frame;
+		VideoBackendGetFrame(v, &frame);
+		glBindTexture(GL_TEXTURE_2D, context->initialShader.tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.width, frame.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		context->initialShader.dirty = false;
+	}
 
 	int layer;
 	for (layer = 0; layer < VIDEO_LAYER_MAX; ++layer) {
