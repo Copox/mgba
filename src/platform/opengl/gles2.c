@@ -172,8 +172,8 @@ static void mGLES2ContextInit(struct VideoBackend* v, WHandle handle) {
 	uniforms[3].max.fvec3[1] = 1.0f;
 	uniforms[3].max.fvec3[2] = 1.0f;
 	mGLES2ShaderInit(&context->initialShader, _vertexShader, _fragmentShader, -1, -1, false, uniforms, 4);
-	mGLES2ShaderInit(&context->finalShader, 0, 0, 0, 0, false, NULL, 0);
-	mGLES2ShaderInit(&context->interframeShader, 0, _interframeFragmentShader, -1, -1, false, NULL, 0);
+	mGLES2ShaderInit(&context->finalShader, NULL, NULL, 0, 0, false, NULL, 0);
+	mGLES2ShaderInit(&context->interframeShader, NULL, _interframeFragmentShader, -1, -1, false, NULL, 0);
 	mGLES2ShaderInit(&context->overlayShader, _vertexShader, _thruFragmentShader, -1, -1, false, NULL, 0);
 
 #ifdef BUILD_GLES3
@@ -220,7 +220,7 @@ static void mGLES2ContextSetLayerDimensions(struct VideoBackend* v, enum VideoLa
 	if (layer >= VIDEO_LAYER_MAX) {
 		return;
 	}
-	if (dims->width != context->layerDims[layer].width && dims->height != context->layerDims[layer].height) {
+	if (dims->width != context->layerDims[layer].width || dims->height != context->layerDims[layer].height) {
 		context->layerDims[layer].width = dims->width;
 		context->layerDims[layer].height = dims->height;
 
@@ -267,6 +267,7 @@ static void mGLES2ContextDeinit(struct VideoBackend* v) {
 	mGLES2ShaderDeinit(&context->finalShader);
 	mGLES2ShaderDeinit(&context->interframeShader);
 	context->overlayShader.fbo = 0;
+	context->overlayShader.tex = 0;
 	mGLES2ShaderDeinit(&context->overlayShader);
 	free(context->initialShader.uniforms);
 }
